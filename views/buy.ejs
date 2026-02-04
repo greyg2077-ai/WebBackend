@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Tickets - Cinema</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .booking-wrapper {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 20px;
+    }
+
+    .room-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .room-btn {
+      padding: 12px 20px;
+      border: 2px solid #ff0000;
+      background: rgba(255, 0, 0, 0.1);
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .room-btn:hover {
+      background: rgba(255, 0, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    .room-btn.active {
+      background: #ff0000;
+      color: white;
+    }
+
+    .seats-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .room-info {
+      color: #ff0000;
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .available-count {
+      font-size: 0.9em;
+      color: #00ff00;
+      background: rgba(0, 255, 0, 0.1);
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 255, 0, 0.3);
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .seats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+
+    .seat {
+      aspect-ratio: 1;
+      border: 2px solid #ff0000;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
+      position: relative;
+      background: none;
+      color: white;
+    }
+
+    .seat.available {
+      background: #00aa00;
+      color: white;
+    }
+
+    .seat.available:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 12px rgba(0, 255, 0, 0.6);
+    }
+
+    .seat.booked {
+      background: #aa0000;
+      color: white;
+      opacity: 0.8;
+    }
+
+    .seat.booked:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+      cursor: pointer;
+    }
+
+    .seat-owner {
+      font-size: 0.6em;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 90%;
+      white-space: normal;
+      line-height: 1.2;
+    }
+
+    .control-panel {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .control-panel h3 {
+      color: #ff0000;
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: #ff0000;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 0.95em;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ff0000;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      border-radius: 4px;
+      font-size: 0.95em;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .form-group input:read-only {
+      background: rgba(0, 0, 0, 0.5);
+      cursor: not-allowed;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      background: #ff0000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95em;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #cc0000;
+      transform: scale(1.02);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .btn.secondary {
+      background: #ff6600;
+    }
+
+    .btn.secondary:hover:not(:disabled) {
+      background: #dd5500;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .message.success {
+      background: rgba(0, 255, 0, 0.2);
+      color: #00ff00;
+      border: 1px solid rgba(0, 255, 0, 0.5);
+      display: block;
+    }
+
+    .message.error {
+      background: rgba(255, 0, 0, 0.2);
+      color: #ff6666;
+      border: 1px solid rgba(255, 0, 0, 0.5);
+      display: block;
+    }
+
+    .divider {
+      border: none;
+      border-top: 2px solid rgba(255, 0, 0, 0.3);
+      margin: 2rem 0;
+    }
+
+    .seat-info {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #ddd;
+      font-size: 0.9em;
+      border: 1px solid rgba(255, 0, 0, 0.3);
+    }
+
+    .seat-info.selected {
+      border: 2px solid #ff0000;
+      color: #ff0000;
+      font-weight: bold;
+      background: rgba(255, 0, 0, 0.1);
+    }
+
+    .hidden-section {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .seats-grid {
+        gap: 10px;
+      }
+
+      .control-panel {
+        padding: 1.5rem;
+      }
+
+      .room-selector {
+        gap: 8px;
+      }
+
+      .room-btn {
+        padding: 10px 15px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cinema Tickets Buy Site</h1>
+  </header>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/search?q=movie">Search</a>
+    <a href="/movies">All Movies</a>
+    <a href="/buy">Buy Tickets</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+  </nav>
+
+  <main>
+    <div class="booking-wrapper">
+      <h2 style="color: #ff0000; text-align: center;">Cinema Rooms - Select Your Seat</h2>
+      
+      <!-- Room Selector -->
+      <div class="room-selector" id="roomSelector"></div>
+
+      <!-- Seats Section -->
+      <div class="seats-section">
+        <div class="room-info">
+          <span id="roomName">Room 1</span>
+          <div class="available-count" id="availableCount">10/10 available</div>
+        </div>
+        <div class="seats-grid" id="seatsGrid"></div>
+      </div>
+
+      <!-- Control Panel -->
+      <div class="control-panel">
+        <h3>🎫 Book New Ticket</h3>
+        
+        <div id="bookMessage" class="message"></div>
+
+        <div class="seat-info" id="seatInfo">
+          Click a green seat to select
+        </div>
+
+        <div class="form-group">
+          <label>Selected Room & Seat:</label>
+          <input type="text" id="selectedSeat" placeholder="No seat selected" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Your Name:</label>
+          <input type="text" id="customerName" placeholder="Enter your name" maxlength="50">
+        </div>
+
+        <div class="button-group">
+          <button class="btn" id="bookBtn">✓ Book Ticket</button>
+        </div>
+
+        <hr class="divider">
+
+        <h3>⚙️ Manage Your Booking</h3>
+
+        <div id="manageMessage" class="message"></div>
+
+        <div id="manageSection" class="hidden-section">
+          <div class="seat-info" id="manageSeatInfo">
+            Selected seat info will appear here
+          </div>
+
+          <div class="form-group">
+            <label>Verify Your Name (from ticket):</label>
+            <input type="text" id="verifyName" placeholder="Enter name from your ticket" maxlength="50">
+          </div>
+
+          <div id="updateSection" class="hidden-section">
+            <div class="form-group">
+              <label>New Name:</label>
+              <input type="text" id="newOwnerName" placeholder="Enter new name" maxlength="50">
+            </div>
+
+            <div class="button-group">
+              <button class="btn secondary" id="updateBtn">✏️ Update Name</button>
+              <button class="btn" style="background: #cc0000;" id="cancelUpdateBtn">Cancel</button>
+            </div>
+          </div>
+
+          <div id="deleteSection" class="hidden-section">
+            <p style="color: #ff6666; text-align: center; font-weight: bold; margin: 1rem 0;">
+              Are you sure you want to cancel this booking?
+            </p>
+
+            <div class="button-group">
+              <button class="btn" style="background: #ff6600;" id="confirmDeleteBtn">✗ Yes, Cancel Booking</button>
+              <button class="btn" style="background: #00aa00;" id="cancelDeleteBtn">← No, Go Back</button>
+            </div>
+          </div>
+
+          <div id="actionButtons" class="button-group">
+            <button class="btn secondary" id="modifyBtn">✏️ Modify Name</button>
+            <button class="btn" style="background: #ff6600;" id="deleteBtn">✗ Cancel Booking</button>
+            <button class="btn" style="background: #666;" id="backBtn">← Back to Seats</button>
+          </div>
+        </div>
+
+        <div id="selectSeatMsg" style="color: #ffcc00; text-align: center; padding: 1rem; background: rgba(255, 204, 0, 0.1); border-radius: 4px; border: 1px solid rgba(255, 204, 0, 0.3);">
+          Click a red (booked) seat to manage your booking
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentRoomId = 'room1';
+    let selectedSeatNumber = null;
+    let selectedSeatOwner = null;
+    let allRooms = [];
+
+    // Load all rooms from API
+    async function loadRooms() {
+      try {
+        const response = await fetch('/api/seats');
+        const data = await response.json();
+        
+        if (data.success) {
+          allRooms = data.data;
+          renderRoomSelector();
+          renderSeats();
+        } else {
+          showMessage('Failed to load rooms', 'error', 'bookMessage');
+        }
+      } catch (err) {
+        console.error('Error loading rooms:', err);
+        showMessage('Error loading rooms: ' + err.message, 'error', 'bookMessage');
+      }
+    }
+
+    // Render room selector buttons
+    function renderRoomSelector() {
+      const selector = document.getElementById('roomSelector');
+      selector.innerHTML = '';
+
+      allRooms.forEach(room => {
+        const btn = document.createElement('button');
+        btn.className = 'room-btn';
+        if (room.roomId === currentRoomId) {
+          btn.classList.add('active');
+        }
+        btn.textContent = `Room ${room.roomNumber}`;
+        btn.addEventListener('click', () => switchRoom(room.roomId));
+        selector.appendChild(btn);
+      });
+    }
+
+    // Switch to a different room
+    function switchRoom(roomId) {
+      currentRoomId = roomId;
+      selectedSeatNumber = null;
+      selectedSeatOwner = null;
+      resetManageSection();
+      renderRoomSelector();
+      renderSeats();
+      document.getElementById('seatInfo').textContent = 'Click a green seat to select';
+      document.getElementById('seatInfo').classList.remove('selected');
+      document.getElementById('selectedSeat').value = '';
+    }
+
+    // Render seats for current room
+    function renderSeats() {
+      const room = allRooms.find(r => r.roomId === currentRoomId);
+      if (!room) return;
+
+      document.getElementById('roomName').textContent = `Room ${room.roomNumber}`;
+      
+      const available = room.seats.filter(s => s.isAvailable).length;
+      document.getElementById('availableCount').textContent = `${available}/${room.totalSeats} available`;
+
+      const grid = document.getElementById('seatsGrid');
+      grid.innerHTML = '';
+
+      room.seats.forEach(seat => {
+        const seatBtn = document.createElement('button');
+        seatBtn.type = 'button';
+        seatBtn.className = 'seat';
+
+        if (seat.isAvailable) {
+          seatBtn.classList.add('available');
+          seatBtn.textContent = seat.seatNumber;
+          seatBtn.addEventListener('click', () => selectAvailableSeat(seat.seatNumber));
+        } else {
+          seatBtn.classList.add('booked');
+          seatBtn.innerHTML = `
+            <div class="seat-owner">
+              <strong>${seat.seatNumber}</strong><br>
+              
+            </div> 
+          `;//HERE HERE 489line :<span>${seat.ownerName}</span> 
+          seatBtn.addEventListener('click', () => selectBookedSeat(seat.seatNumber, seat.ownerName));
+        }
+
+        grid.appendChild(seatBtn);
+      });
+    }
+
+    // Select an available seat for booking
+    function selectAvailableSeat(seatNumber) {
+      selectedSeatNumber = seatNumber;
+      selectedSeatOwner = null;
+      resetManageSection();
+      
+      document.getElementById('selectedSeat').value = `Room ${getRoom().roomNumber} - Seat ${seatNumber}`;
+      document.getElementById('seatInfo').textContent = `✓ Selected: Seat ${seatNumber}`;
+      document.getElementById('seatInfo').classList.add('selected');
+      renderSeats();
+    }
+
+    // Select a booked seat to manage
+    function selectBookedSeat(seatNumber, ownerName) {
+      selectedSeatNumber = seatNumber;
+      selectedSeatOwner = ownerName;
+      resetManageSection();
+      
+      document.getElementById('manageSection').classList.remove('hidden-section');
+      document.getElementById('selectSeatMsg').classList.add('hidden-section');
+      document.getElementById('actionButtons').classList.remove('hidden-section');
+      document.getElementById('manageSeatInfo').textContent = `✓ Selected: Room ${getRoom().roomNumber}, Seat ${seatNumber} `; // Owner: ${ownerName} HERE
+      
+      // Clear fields
+      document.getElementById('verifyName').value = '';
+      document.getElementById('newOwnerName').value = '';
+      renderSeats();
+    }
+
+    // Get current room object
+    function getRoom() {
+      return allRooms.find(r => r.roomId === currentRoomId);
+    }
+
+    // Reset manage section to initial state
+    function resetManageSection() {
+      document.getElementById('manageSection').classList.add('hidden-section');
+      document.getElementById('selectSeatMsg').classList.remove('hidden-section');
+      document.getElementById('actionButtons').classList.add('hidden-section');
+      document.getElementById('updateSection').classList.add('hidden-section');
+      document.getElementById('deleteSection').classList.add('hidden-section');
+      document.getElementById('verifyName').value = '';
+      document.getElementById('newOwnerName').value = '';
+      document.getElementById('manageMessage').className = 'message';
+    }
+
+
+    //N
+    // Book ticket
+    document.getElementById('bookBtn').addEventListener('click', async () => {
+      const name = document.getElementById('customerName').value.trim();
+
+      if (!selectedSeatNumber || selectedSeatOwner !== null) {
+        showMessage('Please select an available (green) seat', 'error', 'bookMessage');
+        return;
+      }
+
+      if (!name) {
+        showMessage('Please enter your name', 'error', 'bookMessage');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/seats/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomId: currentRoomId,
+            seatNumber: selectedSeatNumber,
+            ownerName: name
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage(`Error: ${data.message || 'Booking failed'}`, 'error', 'bookMessage');
+          return;
+        }
+
+        showMessage('✓ Ticket booked successfully!', 'success', 'bookMessage');
+        document.getElementById('customerName').value = '';
+        document.getElementById('selectedSeat').value = '';
+        selectedSeatNumber = null;
+        document.getElementById('seatInfo').textContent = 'Click a green seat to select';
+        document.getElementById('seatInfo').classList.remove('selected');
+        loadRooms();
+      } catch (err) {
+        showMessage(`Error: ${err.message}`, 'error', 'bookMessage');
+      }
+    });
+
+    // Modify button - show update options
+    document.getElementById('modifyBtn').addEventListener('click', () => {
+      document.getElementById('updateSection').classList.remove('hidden-section');
+      document.getElementById('deleteSection').classList.add('hidden-section');
+      document.getElementById('actionButtons').classList.add('hidden-section');
+      document.getElementById('verifyName').focus();
+    });
+
+    // Delete button - show confirmation
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      document.getElementById('updateSection').classList.add('hidden-section');
+      document.getElementById('deleteSection').classList.remove('hidden-section');
+      document.getElementById('actionButtons').classList.add('hidden-section');
+    });
+
+    // Back button
+    document.getElementById('backBtn').addEventListener('click', () => {
+      resetManageSection();
+      selectedSeatNumber = null;
+      selectedSeatOwner = null;
+      renderSeats();
+    });
+
+    // Cancel update
+    document.getElementById('cancelUpdateBtn').addEventListener('click', () => {
+      document.getElementById('updateSection').classList.add('hidden-section');
+      document.getElementById('actionButtons').classList.remove('hidden-section');
+      document.getElementById('verifyName').value = '';
+      document.getElementById('newOwnerName').value = '';
+    });
+
+    // Cancel delete
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+      document.getElementById('deleteSection').classList.add('hidden-section');
+      document.getElementById('actionButtons').classList.remove('hidden-section');
+      document.getElementById('verifyName').value = '';
+    });
+
+    // Update name
+    document.getElementById('updateBtn').addEventListener('click', async () => {
+      const verifyName = document.getElementById('verifyName').value.trim();
+      const newName = document.getElementById('newOwnerName').value.trim();
+
+      if (!verifyName) {
+        showMessage('Please verify your current name', 'error', 'manageMessage');
+        return;
+      }
+
+      if (verifyName !== selectedSeatOwner) {
+        showMessage('Name does not match booking. Access denied.', 'error', 'manageMessage');
+        return;
+      }
+
+      if (!newName) {
+        showMessage('Please enter new name', 'error', 'manageMessage');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/seats/manage-booking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomId: currentRoomId,
+            seatNumber: selectedSeatNumber,
+            ownerName: verifyName,
+            newOwnerName: newName,
+            action: 'update'
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage(`Error: ${data.message || 'Update failed'}`, 'error', 'manageMessage');
+          return;
+        }
+
+        showMessage('✓ Booking updated successfully!', 'success', 'manageMessage');
+        setTimeout(() => {
+          resetManageSection();
+          selectedSeatNumber = null;
+          selectedSeatOwner = null;
+          loadRooms();
+        }, 1500);
+      } catch (err) {
+        showMessage(`Error: ${err.message}`, 'error', 'manageMessage');
+      }
+    });
+
+    // Confirm delete
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+      const verifyName = document.getElementById('verifyName').value.trim();
+
+      if (!verifyName) {
+        showMessage('Please verify your name', 'error', 'manageMessage');
+        return;
+      }
+
+      if (verifyName !== selectedSeatOwner) {
+        showMessage('Name does not match booking. Access denied.', 'error', 'manageMessage');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/seats/manage-booking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomId: currentRoomId,
+            seatNumber: selectedSeatNumber,
+            ownerName: verifyName,
+            action: 'delete'
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage(`Error: ${data.message || 'Cancellation failed'}`, 'error', 'manageMessage');
+          return;
+        }
+
+        showMessage('✓ Booking cancelled successfully!', 'success', 'manageMessage');
+        setTimeout(() => {
+          resetManageSection();
+          selectedSeatNumber = null;
+          selectedSeatOwner = null;
+          loadRooms();
+        }, 1500);
+      } catch (err) {
+        showMessage(`Error: ${err.message}`, 'error', 'manageMessage');
+      }
+    });
+
+    // Show message
+    function showMessage(msg, type, elementId) {
+      const msgDiv = document.getElementById(elementId);
+      msgDiv.textContent = msg;
+      msgDiv.className = 'message ' + type;
+      setTimeout(() => {
+        msgDiv.className = 'message';
+      }, 5000);
+    }
+
+    // Initialize on page load
+    window.addEventListener('load', loadRooms);
+  </script>
+</body>
+</html>

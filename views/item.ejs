@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema Tickets - All Movies</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .movies-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .movie-card {
+      padding: 20px;
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .movie-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+      border-color: rgba(255, 0, 0, 0.6);
+    }
+    .movie-card h3 {
+      margin: 0 0 10px 0;
+      color: #ff0000;
+      font-size: 1.3em;
+    }
+    .movie-info {
+      margin: 10px 0;
+      color: #ddd;
+      font-size: 0.95em;
+    }
+    .movie-info strong {
+      color: #ff0000;
+    }
+    .movie-description {
+      margin-top: 15px;
+      color: #bbb;
+      line-height: 1.5;
+      font-size: 0.9em;
+    }
+    .no-movies {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 40px 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cinema Tickets Buy Site</h1>
+  </header>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/search?q=movie">Search</a>
+    <a href="/movies">All Movies</a>
+    <a href="/buy">Buy Tickets</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+  </nav>
+  <main>
+    <h2>All Movies</h2>
+    
+    <% if (movies && movies.length > 0) { %>
+      <p style="color: #ddd;">Showing <%= movies.length %> movie(s)</p>
+      <div class="movies-container">
+        <% movies.forEach(movie => { %>
+          <div class="movie-card">
+            <h3><%= movie.title %></h3>
+            <div class="movie-info">
+              <strong>Genre:</strong> <%= movie.genre %>
+            </div>
+            <% if (movie.duration) { %>
+              <div class="movie-info">
+                <strong>Duration:</strong> <%= movie.duration %> minutes
+              </div>
+            <% } %>
+            <% if (movie.releaseDate) { %>
+              <div class="movie-info">
+                <strong>Release Date:</strong> <%= movie.releaseDate %>
+              </div>
+            <% } %>
+            <% if (movie.rating) { %>
+              <div class="movie-info">
+                <strong>Rating:</strong> <span style="color: #ffd700;">⭐ <%= movie.rating %>/10</span>
+              </div>
+            <% } %>
+            <% if (movie.description) { %>
+              <div class="movie-description">
+                <%= movie.description %>
+              </div>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="no-movies">
+        <p>No movies found in the database.</p>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>
