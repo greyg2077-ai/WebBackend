@@ -53,7 +53,9 @@ form {
   flex-direction: column;
 }
 
-input, textarea, button {
+input,
+textarea,
+button {
   margin: 0.5rem 0;
   padding: 0.5rem;
   border: 1px solid #ccc;
@@ -62,7 +64,8 @@ input, textarea, button {
   color: #fff;
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: #ccc;
 }
 
@@ -75,4 +78,43 @@ button {
 
 button:hover {
   background-color: #cc0000;
+}
+
+/* Dropdown Styles */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #333;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 4px;
+}
+
+.dropdown-content a,
+.dropdown-content button {
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover,
+.dropdown-content button:hover {
+  background-color: #ff0000;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropbtn {
+  padding: 1rem;
 }

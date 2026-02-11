@@ -1,4 +1,5 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
+const bcrypt = require('bcrypt');
 const path = require('path');
 
 // MongoDB for everything
@@ -6,6 +7,7 @@ const MONGO_URL = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const MONGO_DB_NAME = 'cinema';
 const SEATS_COLLECTION = 'seats';
 const MOVIES_COLLECTION = 'movies';
+const USERS_COLLECTION = 'users';
 
 let mongoClient = null;
 let mongoDb = null;
@@ -16,13 +18,14 @@ async function initializeDatabase() {
     mongoClient = new MongoClient(MONGO_URL);
     await mongoClient.connect();
     mongoDb = mongoClient.db(MONGO_DB_NAME);
-    
+
     console.log('Connected to MongoDB at:', MONGO_URL);
-    
-    // Initialize collections
-    await initializeSeatsCollection();
-    await initializeMoviesCollection();
-    
+
+    console.log('Connected to MongoDB at:', MONGO_URL);
+
+    // Collections are already initialized in the database
+    // Removed automatic initialization to prevent overwriting/duplication
+
     return mongoDb;
   } catch (err) {
     console.error('Error initializing database:', err);
@@ -30,106 +33,8 @@ async function initializeDatabase() {
   }
 }
 
-// Initialize seats collection with 5 rooms and 10 seats each
-async function initializeSeatsCollection() {
-  try {
-    const collection = mongoDb.collection(SEATS_COLLECTION);
-    const existingCount = await collection.countDocuments();
-    
-    if (existingCount === 0) {
-      // Create 5 rooms with 10 seats each
-      const rooms = [];
-      for (let room = 1; room <= 5; room++) {
-        const seats = [];
-        for (let seatNum = 1; seatNum <= 10; seatNum++) {
-          seats.push({
-            seatNumber: seatNum,
-            isAvailable: true,
-            ownerName: ''
-          });
-        }
-        
-        rooms.push({
-          roomId: `room${room}`,
-          roomNumber: room,
-          totalSeats: 10,
-          seats: seats,
-          createdAt: new Date()
-        });
-      }
-      
-      await collection.insertMany(rooms);
-      console.log('✓ Initialized 5 cinema rooms with 10 seats each');
-    } else {
-      console.log('✓ Seats collection already exists');
-    }
-  } catch (err) {
-    console.error('Error initializing seats collection:', err);
-    throw err;
-  }
-}
-
-// Initialize movies collection
-async function initializeMoviesCollection() {
-  try {
-    const collection = mongoDb.collection(MOVIES_COLLECTION);
-    const existingCount = await collection.countDocuments();
-    
-    if (existingCount === 0) {
-      // Sample movies
-      const sampleMovies = [
-        {
-          title: 'The Shawshank Redemption',
-          genre: 'Drama',
-          description: 'Two imprisoned men bond over a number of years...',
-          duration: 142,
-          releaseDate: '1994-09-23',
-          rating: 9.3
-        },
-        {
-          title: 'The Dark Knight',
-          genre: 'Action',
-          description: 'Batman faces a new criminal mastermind...',
-          duration: 152,
-          releaseDate: '2008-07-18',
-          rating: 9.0
-        },
-        {
-          title: 'Inception',
-          genre: 'Sci-Fi',
-          description: 'A thief who steals corporate secrets...',
-          duration: 148,
-          releaseDate: '2010-07-16',
-          rating: 8.8
-        },
-        {
-          title: 'Pulp Fiction',
-          genre: 'Crime',
-          description: 'The lives of two mob hitmen, a boxer, a gangster...',
-          duration: 154,
-          releaseDate: '1994-10-14',
-          rating: 8.9
-        },
-        {
-          title: 'Forrest Gump',
-          genre: 'Drama',
-          description: 'The presidencies of Kennedy and Johnson unfold...',
-          duration: 142,
-          releaseDate: '1994-07-06',
-          rating: 8.8
-        }
-      ];
-      
-      await collection.insertMany(sampleMovies);
-      console.log('✓ Initialized 5 sample movies');
-    } else {
-      console.log('✓ Movies collection already exists');
-    }
-  } catch (err) {
-    console.error('Error initializing movies collection:', err);
-    throw err;
-  }
-}
+// Data initialization functions removed as per user request
+// The database is expected to be pre-populated
 
 // Close database
 async function closeDatabase() {
@@ -264,6 +169,102 @@ async function searchMovies(query) {
   }
 }
 
+// Get movies with sorting
+async function getAllMoviesSorted(sortBy) {
+  try {
+    const collection = mongoDb.collection(MOVIES_COLLECTION);
+    let sortOption = {};
+
+    switch (sortBy) {
+      case 'year_desc':
+        sortOption = { releaseDate: -1 }; // Newest first
+        break;
+      case 'year_asc':
+        sortOption = { releaseDate: 1 }; // Oldest first
+        break;
+      case 'rating':
+        sortOption = { rating: -1 }; // High to low
+        break;
+      case 'duration':
+        sortOption = { duration: -1 }; // Longest first
+        break;
+      case 'genre':
+        sortOption = { genre: 1 }; // Alphabetical
+        break;
+      default:
+        sortOption = {}; // No sorting
+    }
+
+    return await collection.find({}).sort(sortOption).toArray();
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Save contact message
+async function saveContactMessage(contactData) {
+  try {
+    const collection = mongoDb.collection('contacts');
+    const result = await collection.insertOne({
+      ...contactData,
+      createdAt: new Date()
+    });
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Delete user by ID
+async function deleteUser(userId) {
+  try {
+    const collection = mongoDb.collection(USERS_COLLECTION);
+    const result = await collection.deleteOne({ _id: new ObjectId(userId) });
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// ===== USER OPERATIONS =====
+
+// Create a new user with hashed password
+async function createUser(username, password) {
+  try {
+    const collection = mongoDb.collection(USERS_COLLECTION);
+
+    // Hash password with bcrypt (10 salt rounds)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await collection.insertOne({
+      username: username.trim().toLowerCase(),
+      password: hashedPassword,
+      createdAt: new Date()
+    });
+
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Find user by username
+async function findUserByUsername(username) {
+  try {
+    const collection = mongoDb.collection(USERS_COLLECTION);
+    return await collection.findOne({
+      username: username.trim().toLowerCase()
+    });
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Get MongoDB client for session store
+function getMongoClient() {
+  return mongoClient;
+}
+
 module.exports = {
   initializeDatabase,
   closeDatabase,
@@ -274,5 +275,12 @@ module.exports = {
   deleteSeat,
   deleteTicketByName,
   getAllMovies,
-  searchMovies
+  getAllMoviesSorted,
+  searchMovies,
+  createUser,
+  findUserByUsername,
+  findUserByUsername,
+  saveContactMessage,
+  deleteUser,
+  getMongoClient
 };
