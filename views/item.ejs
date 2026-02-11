@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,38 +13,45 @@
       gap: 20px;
       margin-top: 20px;
     }
+
     .movie-card {
       padding: 20px;
       border: 2px solid rgba(255, 0, 0, 0.3);
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     }
+
     .movie-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
       border-color: rgba(255, 0, 0, 0.6);
     }
+
     .movie-card h3 {
       margin: 0 0 10px 0;
       color: #ff0000;
       font-size: 1.3em;
     }
+
     .movie-info {
       margin: 10px 0;
       color: #ddd;
       font-size: 0.95em;
     }
+
     .movie-info strong {
       color: #ff0000;
     }
+
     .movie-description {
       margin-top: 15px;
       color: #bbb;
       line-height: 1.5;
       font-size: 0.9em;
     }
+
     .no-movies {
       text-align: center;
       color: #999;
@@ -52,58 +60,72 @@
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Cinema Tickets Buy Site</h1>
-  </header>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/search?q=movie">Search</a>
-    <a href="/movies">All Movies</a>
-    <a href="/buy">Buy Tickets</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-  </nav>
-  <main>
-    <h2>All Movies</h2>
-    
-    <% if (movies && movies.length > 0) { %>
-      <p style="color: #ddd;">Showing <%= movies.length %> movie(s)</p>
-      <div class="movies-container">
-        <% movies.forEach(movie => { %>
-          <div class="movie-card">
-            <h3><%= movie.title %></h3>
-            <div class="movie-info">
-              <strong>Genre:</strong> <%= movie.genre %>
+  <%- include('partials/header') %>
+    <main>
+      <h2>All Movies</h2>
+
+      <!-- Sorting Form -->
+      <form action="/movies" method="GET" style="margin-bottom: 20px;">
+        <label for="sort" style="color: #ff0000; margin-right: 10px;">Sort by:</label>
+        <select name="sort" id="sort"
+          style="padding: 8px; border: 2px solid #ff0000; background: rgba(0,0,0,0.3); color: white; border-radius: 4px;">
+          <option value="" <%=(typeof currentSort==='undefined' || currentSort==='' ) ? 'selected' : '' %>>Default
+          </option>
+          <option value="year_desc" <%=currentSort==='year_desc' ? 'selected' : '' %>>Year (Newest First)</option>
+          <option value="year_asc" <%=currentSort==='year_asc' ? 'selected' : '' %>>Year (Oldest First)</option>
+          <option value="rating" <%=currentSort==='rating' ? 'selected' : '' %>>Rating (High to Low)</option>
+          <option value="duration" <%=currentSort==='duration' ? 'selected' : '' %>>Duration (Longest First)</option>
+          <option value="genre" <%=currentSort==='genre' ? 'selected' : '' %>>Genre (A-Z)</option>
+        </select>
+        <button type="submit"
+          style="padding: 8px 16px; background: #ff0000; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Apply</button>
+      </form>
+
+      <% if (movies && movies.length> 0) { %>
+        <p style="color: #ddd;">Showing <%= movies.length %> movie(s)</p>
+        <div class="movies-container">
+          <% movies.forEach(movie=> { %>
+            <div class="movie-card">
+              <h3>
+                <%= movie.title %>
+              </h3>
+              <div class="movie-info">
+                <strong>Genre:</strong>
+                <%= movie.genre %>
+              </div>
+              <% if (movie.duration) { %>
+                <div class="movie-info">
+                  <strong>Duration:</strong>
+                  <%= movie.duration %> minutes
+                </div>
+                <% } %>
+                  <% if (movie.releaseDate) { %>
+                    <div class="movie-info">
+                      <strong>Release Date:</strong>
+                      <%= movie.releaseDate %>
+                    </div>
+                    <% } %>
+                      <% if (movie.rating) { %>
+                        <div class="movie-info">
+                          <strong>Rating:</strong> <span style="color: #ffd700;">⭐ <%= movie.rating %>/10</span>
+                        </div>
+                        <% } %>
+                          <% if (movie.description) { %>
+                            <div class="movie-description">
+                              <%= movie.description %>
+                            </div>
+                            <% } %>
             </div>
-            <% if (movie.duration) { %>
-              <div class="movie-info">
-                <strong>Duration:</strong> <%= movie.duration %> minutes
-              </div>
-            <% } %>
-            <% if (movie.releaseDate) { %>
-              <div class="movie-info">
-                <strong>Release Date:</strong> <%= movie.releaseDate %>
-              </div>
-            <% } %>
-            <% if (movie.rating) { %>
-              <div class="movie-info">
-                <strong>Rating:</strong> <span style="color: #ffd700;">⭐ <%= movie.rating %>/10</span>
-              </div>
-            <% } %>
-            <% if (movie.description) { %>
-              <div class="movie-description">
-                <%= movie.description %>
-              </div>
-            <% } %>
+            <% }); %>
+        </div>
+        <% } else { %>
+          <div class="no-movies">
+            <p>No movies found in the database.</p>
           </div>
-        <% }); %>
-      </div>
-    <% } else { %>
-      <div class="no-movies">
-        <p>No movies found in the database.</p>
-      </div>
-    <% } %>
-  </main>
+          <% } %>
+    </main>
 </body>
+
 </html>

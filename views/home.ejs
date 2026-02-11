@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
       border: 1px solid #ddd;
       border-radius: 5px;
     }
+
     .movie-item {
       padding: 15px;
       margin: 10px 0;
@@ -19,107 +21,107 @@
       border-radius: 5px;
       background-color: #f9f9f9;
     }
+
     .movie-title {
       font-weight: bold;
       font-size: 1.1em;
       color: #333;
     }
+
     .movie-info {
       margin-top: 5px;
       color: #666;
       font-size: 0.95em;
     }
+
     .no-results {
       color: #999;
       font-style: italic;
     }
+
     .api-links {
       margin-top: 30px;
       padding: 20px;
       background-color: #f0f0f0;
       border-radius: 5px;
     }
+
     .api-links h3 {
       margin-top: 0;
       color: #333;
     }
+
     .api-links ul {
       list-style-type: none;
       padding: 0;
     }
+
     .api-links li {
       padding: 8px 0;
     }
+
     .api-links a {
       color: #007bff;
       text-decoration: none;
     }
+
     .api-links a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Cinema Tickets Buy Site</h1>
-  </header>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/search?q=movie">Search</a>
-    <a href="/movies">All Movies</a>
-    <a href="/buy">Buy Tickets</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-  </nav>
-  <main>
-    <h2>Welcome to Cinema Tickets</h2>
-    <p>Buy your movie tickets online easily. Click "Buy Tickets" to book your seats now!</p>
-    
-    <section>
-      <h3>Search for Movies</h3>
-      <form id="searchForm">
-        <input type="text" id="searchInput" placeholder="Search for a movie..." required>
-        <button type="submit">Search</button>
-      </form>
-      <div id="searchResults" class="search-results" style="display: none;"></div>
-    </section>
+  <%- include('partials/header') %>
+    <main>
+      <h2>Welcome to Cinema Tickets</h2>
+      <p>Buy your movie tickets online easily. Click "Buy Tickets" to book your seats now!</p>
 
-    <section class="api-links">
-      <h3>API Test Links</h3>
-      <p>Test the API endpoints directly:</p>
-      <ul>
-        <li><a href="/api/seats" target="_blank">GET /api/seats - Get all rooms</a></li>
-        <li><a href="/api/seats/room1" target="_blank">GET /api/seats/room1 - Get room 1</a></li>
-        <li><a href="/api/info" target="_blank">GET /api/info - Get API info</a></li>
-      </ul>
-    </section>
-  </main>
+      <section>
+        <h3>Search for Movies</h3>
+        <form id="searchForm">
+          <input type="text" id="searchInput" placeholder="Search for a movie..." required>
+          <button type="submit">Search</button>
+        </form>
+        <div id="searchResults" class="search-results" style="display: none;"></div>
+      </section>
 
-  <script>
-    const searchForm = document.getElementById('searchForm');
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
+      <section class="api-links">
+        <h3>API Test Links</h3>
+        <p>Test the API endpoints directly:</p>
+        <ul>
+          <li><a href="/api/seats" target="_blank">GET /api/seats - Get all rooms</a></li>
+          <li><a href="/api/seats/room1" target="_blank">GET /api/seats/room1 - Get room 1</a></li>
+          <li><a href="/api/info" target="_blank">GET /api/info - Get API info</a></li>
+        </ul>
+      </section>
+    </main>
 
-    searchForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const query = searchInput.value.trim();
-      
-      if (!query) {
-        alert('Please enter a search query');
-        return;
-      }
+    <script>
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const searchResults = document.getElementById('searchResults');
 
-      try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
+      searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
 
-        if (response.ok) {
-          if (data.length === 0) {
-            searchResults.innerHTML = `<p class="no-results">No movies found matching "${query}"</p>`;
-          } else {
-            let html = `<h3>Search Results for "${query}"</h3>`;
-            data.forEach(movie => {
-              html += `
+        if (!query) {
+          alert('Please enter a search query');
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+          const data = await response.json();
+
+          if (response.ok) {
+            if (data.length === 0) {
+              searchResults.innerHTML = `<p class="no-results">No movies found matching "${query}"</p>`;
+            } else {
+              let html = `<h3>Search Results for "${query}"</h3>`;
+              data.forEach(movie => {
+                html += `
                 <div class="movie-item">
                   <div class="movie-title">${movie.title}</div>
                   <div class="movie-info"><strong>Genre:</strong> ${movie.genre}</div>
@@ -129,19 +131,20 @@
                   ${movie.rating ? `<div class="movie-info"><strong>Rating:</strong> ${movie.rating}/10</div>` : ''}
                 </div>
               `;
-            });
-            searchResults.innerHTML = html;
+              });
+              searchResults.innerHTML = html;
+            }
+            searchResults.style.display = 'block';
+          } else {
+            searchResults.innerHTML = `<p class="no-results">Error: ${data.error || 'Unable to search'}</p>`;
+            searchResults.style.display = 'block';
           }
-          searchResults.style.display = 'block';
-        } else {
-          searchResults.innerHTML = `<p class="no-results">Error: ${data.error || 'Unable to search'}</p>`;
+        } catch (error) {
+          searchResults.innerHTML = `<p class="no-results">Error: ${error.message}</p>`;
           searchResults.style.display = 'block';
         }
-      } catch (error) {
-        searchResults.innerHTML = `<p class="no-results">Error: ${error.message}</p>`;
-        searchResults.style.display = 'block';
-      }
-    });
-  </script>
+      });
+    </script>
 </body>
+
 </html>

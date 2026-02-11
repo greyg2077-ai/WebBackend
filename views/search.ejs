@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
       border: 1px solid #ddd;
       border-radius: 5px;
     }
+
     .movie-item {
       padding: 15px;
       margin: 10px 0;
@@ -19,68 +21,62 @@
       border-radius: 5px;
       background-color: #f9f9f9;
     }
+
     .movie-title {
       font-weight: bold;
       font-size: 1.1em;
       color: #333;
     }
+
     .movie-info {
       margin-top: 5px;
       color: #666;
       font-size: 0.95em;
     }
+
     .no-results {
       color: #999;
       font-style: italic;
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Cinema Tickets Buy Site</h1>
-  </header>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/search?q=movie">Search</a>
-    <a href="/movies">All Movies</a>
-    <a href="/buy">Buy Tickets</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-  </nav>
-  <main>
-    <h2>Search Results</h2>
-    
-    <section>
-      <h3>Search for Movies</h3>
-      <form id="searchForm">
-        <input type="text" id="searchInput" placeholder="Search for a movie..." value="<%= query %>" required>
-        <button type="submit">Search</button>
-      </form>
-      <div id="searchResults" class="search-results"></div>
-    </section>
-  </main>
+  <%- include('partials/header') %>
+    <main>
+      <h2>Search Results</h2>
 
-  <script>
-    const searchForm = document.getElementById('searchForm');
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
+      <section>
+        <h3>Search for Movies</h3>
+        <form id="searchForm">
+          <input type="text" id="searchInput" placeholder="Search for a movie..." value="<%= query %>" required>
+          <button type="submit">Search</button>
+        </form>
+        <div id="searchResults" class="search-results"></div>
+      </section>
+    </main>
 
-    // Perform search on page load with initial query
-    function performSearch(query) {
-      if (!query.trim()) {
-        searchResults.innerHTML = '<p class="no-results">Please enter a search query</p>';
-        return;
-      }
+    <script>
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const searchResults = document.getElementById('searchResults');
 
-      fetch(`/api/search?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.length === 0) {
-            searchResults.innerHTML = `<p class="no-results">No movies found matching "${query}"</p>`;
-          } else {
-            let html = `<h3>Search Results for "${query}"</h3>`;
-            data.forEach(movie => {
-              html += `
+      // Perform search on page load with initial query
+      function performSearch(query) {
+        if (!query.trim()) {
+          searchResults.innerHTML = '<p class="no-results">Please enter a search query</p>';
+          return;
+        }
+
+        fetch(`/api/search?q=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.length === 0) {
+              searchResults.innerHTML = `<p class="no-results">No movies found matching "${query}"</p>`;
+            } else {
+              let html = `<h3>Search Results for "${query}"</h3>`;
+              data.forEach(movie => {
+                html += `
                 <div class="movie-item">
                   <div class="movie-title">${movie.title}</div>
                   <div class="movie-info"><strong>Genre:</strong> ${movie.genre}</div>
@@ -90,29 +86,30 @@
                   ${movie.rating ? `<div class="movie-info"><strong>Rating:</strong> ${movie.rating}/10</div>` : ''}
                 </div>
               `;
-            });
-            searchResults.innerHTML = html;
-          }
-        })
-        .catch(error => {
-          searchResults.innerHTML = `<p class="no-results">Error: ${error.message}</p>`;
-        });
-    }
-
-    // Handle form submission
-    searchForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const query = searchInput.value.trim();
-      performSearch(query);
-    });
-
-    // Initial search on page load
-    window.addEventListener('load', () => {
-      const initialQuery = '<%= query %>';
-      if (initialQuery) {
-        performSearch(initialQuery);
+              });
+              searchResults.innerHTML = html;
+            }
+          })
+          .catch(error => {
+            searchResults.innerHTML = `<p class="no-results">Error: ${error.message}</p>`;
+          });
       }
-    });
-  </script>
+
+      // Handle form submission
+      searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        performSearch(query);
+      });
+
+      // Initial search on page load
+      window.addEventListener('load', () => {
+        const initialQuery = '<%= query %>';
+        if (initialQuery) {
+          performSearch(initialQuery);
+        }
+      });
+    </script>
 </body>
+
 </html>
