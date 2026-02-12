@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 
 // MongoDB for everything
-const MONGO_URL = process.env.MONGO_URI || 'mongodb://localhost:27017';
+const MONGO_URL = process.env.MONGO_URI;
 const MONGO_DB_NAME = 'cinema';
 const SEATS_COLLECTION = 'seats';
 const MOVIES_COLLECTION = 'movies';
@@ -226,14 +226,14 @@ async function deleteUser(userId) {
   }
 }
 
-// ===== USER OPERATIONS =====
+// USER OPERATIONS 
 
 // Create a new user with hashed password
 async function createUser(username, password) {
   try {
     const collection = mongoDb.collection(USERS_COLLECTION);
 
-    // Hash password with bcrypt (10 salt rounds)
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await collection.insertOne({
