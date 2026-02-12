@@ -21,12 +21,12 @@ const {
 } = require('./db/database');
 const seatsRoutes = require('./routes/seats');
 const { isAuthenticated } = require('./middleware/authMiddleware');
-// const authRoutes = require('./routes/auth'); // Removed external route
+
 
 const app = express();
 
-// MongoDB URL - same database for everything
-const MONGO_URL = process.env.MONGO_URI || 'mongodb://localhost:27017/cinema';
+
+const MONGO_URL = process.env.MONGO_URI;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -44,9 +44,10 @@ app.use((req, res, next) => {
 app.use(session({
   secret: process.env.SESSION_SECRET || 'cinema-secret-key-2024',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   store: MongoStore.create({
     mongoUrl: MONGO_URL,
+    dbName: 'cinema',
     collectionName: 'sessions'
   }),
   cookie: {
@@ -67,7 +68,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ================= AUTH ROUTES (INLINED) =================
+// AUTH ROUTES 
 
 // GET - Login page
 app.get('/login', (req, res) => {
@@ -175,7 +176,7 @@ app.post('/delete-account', isAuthenticated, async (req, res) => {
   }
 });
 
-// =========================================================
+
 
 // app.use('/', authRoutes); // Replaced by inline routes above
 
@@ -306,7 +307,6 @@ async function startServer() {
     await initializeDatabase();
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
-      console.log('!!! NEW SERVER VERSION ACTIVE !!!');
     });
   } catch (err) {
     console.error('Failed to start server:', err);
