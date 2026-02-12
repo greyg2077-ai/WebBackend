@@ -58,6 +58,53 @@
       font-style: italic;
       padding: 40px 20px;
     }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 30px;
+      padding: 20px 0;
+    }
+
+    .pagination a,
+    .pagination span {
+      padding: 10px 18px;
+      border: 2px solid rgba(255, 0, 0, 0.4);
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9em;
+      transition: all 0.3s;
+    }
+
+    .pagination a:hover {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: #ff0000;
+      transform: scale(1.05);
+    }
+
+    .pagination .active {
+      background: #ff0000;
+      border-color: #ff0000;
+      color: white;
+    }
+
+    .pagination .disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .pagination .page-info {
+      color: #ddd;
+      border: none;
+      padding: 10px 5px;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 
@@ -68,6 +115,8 @@
 
       <!-- Sorting Form -->
       <form action="/movies" method="GET" style="margin-bottom: 20px;">
+        <input type="hidden" name="page" value="1">
+        <input type="hidden" name="limit" value="<%= typeof limit !== 'undefined' ? limit : 10 %>">
         <label for="sort" style="color: #ff0000; margin-right: 10px;">Sort by:</label>
         <select name="sort" id="sort"
           style="padding: 8px; border: 2px solid #ff0000; background: rgba(0,0,0,0.3); color: white; border-radius: 4px;">
@@ -84,7 +133,12 @@
       </form>
 
       <% if (movies && movies.length> 0) { %>
-        <p style="color: #ddd;">Showing <%= movies.length %> movie(s)</p>
+        <p style="color: #ddd;">
+          Showing <%= movies.length %> movie(s)
+            <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
+              — Page <%= typeof currentPage !=='undefined' ? currentPage : 1 %> of <%= totalPages %>
+                  <% } %>
+        </p>
         <div class="movies-container">
           <% movies.forEach(movie=> { %>
             <div class="movie-card">
@@ -120,11 +174,45 @@
             </div>
             <% }); %>
         </div>
-        <% } else { %>
-          <div class="no-movies">
-            <p>No movies found in the database.</p>
+
+        <!-- Pagination Controls -->
+        <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
+          <div class="pagination">
+            <% const cp=typeof currentPage !=='undefined' ? currentPage : 1; %>
+              <% const lim=typeof limit !=='undefined' ? limit : 10; %>
+                <% const sort=typeof currentSort !=='undefined' ? currentSort : '' ; %>
+
+                  <% if (cp> 1) { %>
+                    <a href="/movies?page=<%= cp - 1 %>&limit=<%= lim %>&sort=<%= sort %>">← Prev</a>
+                    <% } else { %>
+                      <span class="disabled">← Prev</span>
+                      <% } %>
+
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                          <% if (i===cp) { %>
+                            <span class="active">
+                              <%= i %>
+                            </span>
+                            <% } else { %>
+                              <a href="/movies?page=<%= i %>&limit=<%= lim %>&sort=<%= sort %>">
+                                <%= i %>
+                              </a>
+                              <% } %>
+                                <% } %>
+
+                                  <% if (cp < totalPages) { %>
+                                    <a href="/movies?page=<%= cp + 1 %>&limit=<%= lim %>&sort=<%= sort %>">Next →</a>
+                                    <% } else { %>
+                                      <span class="disabled">Next →</span>
+                                      <% } %>
           </div>
           <% } %>
+
+            <% } else { %>
+              <div class="no-movies">
+                <p>No movies found in the database.</p>
+              </div>
+              <% } %>
     </main>
 </body>
 

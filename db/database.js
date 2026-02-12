@@ -12,7 +12,7 @@ const USERS_COLLECTION = 'users';
 let mongoClient = null;
 let mongoDb = null;
 
-// Initialize MongoDB
+// Initialize MongoDB 
 async function initializeDatabase() {
   try {
     mongoClient = new MongoClient(MONGO_URL);
@@ -23,8 +23,8 @@ async function initializeDatabase() {
 
     console.log('Connected to MongoDB at:', MONGO_URL);
 
-    // Collections are already initialized in the database
-    // Removed automatic initialization to prevent overwriting/duplication
+    // Collections are already initialized in the database 234
+   
 
     return mongoDb;
   } catch (err) {

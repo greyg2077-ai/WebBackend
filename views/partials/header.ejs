@@ -8,11 +8,15 @@
     <a href="/buy">Buy Tickets</a>
     <a href="/about">About</a>
     <a href="/contact">Contact</a>
-    <% if (typeof user !=='undefined' && user) { %>
+    <% if (typeof user !== 'undefined' && user) { %>
+        <% if (user.role === 'admin') { %>
+            <a href="/admin/dashboard" style="color: #ffd700;">⚡ Admin</a>
+        <% } %>
         <div class="dropdown" style="display: inline-block; position: relative;">
             <span class="dropbtn" style="color: #00ff00; margin-left: 1rem; cursor: pointer;">Hello, <%= user.username
                     %> ▼</span>
             <div class="dropdown-content">
+                <a href="/my-bookings">My Bookings</a>
                 <a href="/logout">Logout</a>
                 <form action="/delete-account" method="POST"
                     onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');"

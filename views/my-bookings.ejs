@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Cinema</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .bookings-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .bookings-container h2 {
+            color: #ff0000;
+            text-align: center;
+        }
+
+        .booking-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.3s;
+        }
+
+        .booking-card:hover {
+            border-color: rgba(255, 0, 0, 0.6);
+        }
+
+        .booking-info {
+            color: #ddd;
+        }
+
+        .booking-info strong {
+            color: #ff0000;
+        }
+
+        .booking-info .booking-detail {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .btn-cancel-booking {
+            padding: 10px 20px;
+            background: #cc0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .btn-cancel-booking:hover {
+            background: #ff3333;
+            transform: scale(1.05);
+        }
+
+        .no-bookings {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        .no-bookings a {
+            color: #ff0000;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .no-bookings a:hover {
+            text-decoration: underline;
+        }
+
+        .booking-count {
+            text-align: center;
+            color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/header') %>
+
+        <main>
+            <div class="bookings-container">
+                <h2>🎫 My Bookings</h2>
+
+                <% if (bookings && bookings.length> 0) { %>
+                    <div style="text-align: center;">
+                        <span class="booking-count">You have <%= bookings.length %> active booking(s)</span>
+                    </div>
+
+                    <% bookings.forEach(booking=> { %>
+                        <div class="booking-card">
+                            <div class="booking-info">
+                                <div class="booking-detail">
+                                    <strong>Room:</strong> Room <%= booking.roomNumber %>
+                                </div>
+                                <div class="booking-detail">
+                                    <strong>Seat:</strong> #<%= booking.seatNumber %>
+                                </div>
+                                <div class="booking-detail">
+                                    <strong>Name:</strong>
+                                    <%= booking.ownerName %>
+                                </div>
+                            </div>
+                            <form action="/my-bookings/cancel" method="POST"
+                                onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                <input type="hidden" name="roomId" value="<%= booking.roomId %>">
+                                <input type="hidden" name="seatNumber" value="<%= booking.seatNumber %>">
+                                <button type="submit" class="btn-cancel-booking">✗ Cancel Booking</button>
+                            </form>
+                        </div>
+                        <% }); %>
+                            <% } else { %>
+                                <div class="no-bookings">
+                                    <p>You don't have any active bookings.</p>
+                                    <p><a href="/buy">Book a seat now →</a></p>
+                                </div>
+                                <% } %>
+            </div>
+        </main>
+</body>
+
+</html>
